@@ -4,9 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using Microsoft.Extensions.Caching.Memory;
 using Polly;
 using Polly.Extensions.Http;
 using Paymentsense.Coding.Challenge.Api.Clients;
+using Paymentsense.Coding.Challenge.Api.Constants;
 using Paymentsense.Coding.Challenge.Api.Services;
 
 namespace Paymentsense.Coding.Challenge.Api
@@ -25,6 +27,7 @@ namespace Paymentsense.Coding.Challenge.Api
         {
             services.AddControllers();
             services.AddHealthChecks();
+            services.AddMemoryCache();
             services.AddCors(options =>
             {
                 options.AddPolicy("PaymentsenseCodingChallengeOriginPolicy", builder =>
@@ -41,10 +44,11 @@ namespace Paymentsense.Coding.Challenge.Api
 
             services.AddHttpClient<ICountryDataClient, CountryDataClient>(c => 
             {
-                c.BaseAddress = new Uri(Configuration["CountryDataSource"]);
+                c.BaseAddress = new Uri(Configuration[SettingsConstants.CountryDataSource]);
             }).AddPolicyHandler(policy);
 
-            services.AddTransient<ICountryDataService, CountryDataService>();
+            var cacheDuration = TimeSpan.FromSeconds(Configuration.GetValue<int>(SettingsConstants.CacheDurationSeconds));
+            services.AddTransient<ICountryDataService>(sp => new CountryDataService(sp.GetService<ICountryDataClient>(), sp.GetService<IMemoryCache>(), cacheDuration));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
