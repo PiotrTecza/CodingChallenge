@@ -3,7 +3,7 @@
   <h2>Failed to get the list of countries</h2>
 </div>
 <div class="mat-elevation-z8" *ngIf="!loading && !hasError">
-  <table mat-table [dataSource]="dataSource">
+  <table mat-table [dataSource]="dataSource" multiTemplateDataRows>
     <!-- Flag Column -->
     <ng-container matColumnDef="flag">
       <th mat-header-cell *matHeaderCellDef>Flag</th>
@@ -18,8 +18,66 @@
       <td mat-cell *matCellDef="let element">{{ element.name }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+        <div class="country-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+          <table>
+            <colgroup>
+              <col style="width: 100px" />
+              <col />
+            </colgroup>
+            <tbody>
+              <tr>
+                <td><b>Capital:</b></td>
+                <td>{{ element.capital }}</td>
+              </tr>
+              <tr>
+                <td><b>Population:</b></td>
+                <td>{{ element.population }}</td>
+              </tr>
+              <tr>
+                <td><b>Currencies:</b></td>
+                <td>
+                  <ng-container *ngFor="let currency of element.currencies; last as isLast">
+                    {{ currency.name }} ({{ currency.code }} {{ currency.symbol }})<span *ngIf="!isLast">, </span>
+                  </ng-container>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Languages:</b></td>
+                <td>
+                  <ng-container *ngFor="let language of element.languages; last as isLast">
+                    {{ language.name }}<span *ngIf="!isLast">, </span>
+                  </ng-container>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Timezones:</b></td>
+                <td>
+                  {{ element.timezones?.join(", ") }}
+                </td>
+              </tr>
+              <tr>
+                <td><b>Borders:</b></td>
+                <td>
+                  {{ element.borders?.join(", ") }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let element; columns: displayedColumns"
+      class="country-element-row"
+      [class.country-expanded-row]="expandedElement === element"
+      (click)="expandedElement = expandedElement === element ? null : element"
+    ></tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="country-detail-row"></tr>
   </table>
 
   <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>

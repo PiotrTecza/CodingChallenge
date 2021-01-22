@@ -12,11 +12,11 @@ describe("CountriesComponent", () => {
   let fixture: ComponentFixture<CountriesComponent>;
   let mockCountryDataService: jasmine.SpyObj<CountryDataService>;
   let countries: Country[] = [
-    {
+    <Country>{
       name: "USA",
       flag: "http://flags.com/usa.svg",
     },
-    {
+    <Country>{
       name: "UK",
       flag: "http://flags.com/uk.svg",
     },
@@ -74,5 +74,15 @@ describe("CountriesComponent", () => {
 
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector("h2").textContent).toContain("Failed to get the list of countries");
+  });
+
+  it("should expand selected record", () => {
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const compiled = fixture.debugElement.nativeElement;
+    compiled.querySelector(".country-element-row").click();
+
+    expect(component.expandedElement).toBe(countries[0]);
   });
 });

@@ -5,6 +5,7 @@ using Paymentsense.Coding.Challenge.Api.Models;
 using Paymentsense.Coding.Challenge.Api.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Paymentsense.Coding.Challenge.Api.Tests.Helpers;
 using Xunit;
 
 namespace Paymentsense.Coding.Challenge.Api.Tests.Controllers
@@ -17,12 +18,7 @@ namespace Paymentsense.Coding.Challenge.Api.Tests.Controllers
 
         public CountryDataServiceTests()
         {
-            _countries = new List<Country>
-            {
-                new Country { Name = "UK", Flag = "http://flags.com/uk.svg"},
-                new Country { Name = "USA", Flag = "http://flags.com/usa.svg"},
-                new Country { Name = "Germany", Flag = "http://flags.comgermany.svg"},
-            };
+            _countries = CountryHelper.GetCountries();
 
             _countryDataServiceMock.Setup(x => x.GetAll()).ReturnsAsync(_countries);
 
